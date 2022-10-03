@@ -32,7 +32,6 @@ export class SetupServer extends Server {
   public close(): void {}
 
   public getApp(): Application {
-    // retorna o app
     return this.app;
   }
 
