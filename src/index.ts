@@ -25,7 +25,7 @@ process.on("uncaughtException", (error) => {
   logger.info("Iniciando APP");
   try {
     const server = new SetupServer();
-    await server.init();
+    server.init();
     server.start();
 
     const exitSignals: NodeJS.Signals[] = ["SIGINT", "SIGTERM", "SIGURG"];

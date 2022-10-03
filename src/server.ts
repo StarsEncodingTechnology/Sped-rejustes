@@ -1,11 +1,10 @@
 import "./util/module-alias";
 
-
-import bodyParser from "body-parser";
-import expressPino from "express-pino-logger";
 import logger from "./logger";
-import cors from "cors";
-import { Application } from "express";
+import express, { Application } from "express";
+import { Server } from "@overnightjs/core";
+import { SpedController } from "./controllers/sped";
+import path from "path";
 
 export class SetupServer extends Server {
   constructor(private port = 3000) {
@@ -18,16 +17,21 @@ export class SetupServer extends Server {
   }
 
   private setupExpress(): void {
-    this.app.use(bodyParser);
-    this.app.use(expressPino({ logger }));
+    // não façam isso crianças 
+    this.app.set("views", path.join(__dirname, "views"));
+    this.app.engine('html', require('ejs').renderFile);
+    this.app.set("view engine", "html");
     this.app.use(
-      cors({
-        origin: "*",
+      express.urlencoded({
+        extended: false,
       })
     );
   }
 
-  private setControllers(): void {}
+  private setControllers(): void {
+    const spedController = new SpedController();
+    this.addControllers([spedController]);
+  }
 
   public close(): void {}
 
