@@ -1,10 +1,12 @@
 import "./util/module-alias";
 
 import logger from "./logger";
-import express, { Application } from "express";
 import { Server } from "@overnightjs/core";
-import { SpedController } from "./controllers/sped";
+import express, { Application } from "express";
+
+import { SpedController } from "./controllers/home";
 import path from "path";
+import { DuplicadoController } from "./controllers/duplicado";
 
 export class SetupServer extends Server {
   constructor(private port = 3000) {
@@ -29,8 +31,9 @@ export class SetupServer extends Server {
   }
 
   private setControllers(): void {
-    const spedController = new SpedController();
-    this.addControllers([spedController]);
+    const homeController = new SpedController();
+    const duplicadoController = new DuplicadoController();
+    this.addControllers([homeController, duplicadoController]);
   }
 
   public close(): void {}

@@ -9,6 +9,7 @@ beforeAll(async () => {
   server = new SetupServer();
   // cria um novo OBJ setupServer
   // que é a configuração do servidor
+
   await server.init();
   // inicia o servidor
   global.testRequest = supertest(server.getApp());
