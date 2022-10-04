@@ -1,4 +1,5 @@
 //Importaremos para realizar o Upload
+import mime from "mime-types";
 import multer from "multer";
 
 //Ajudará no caminho para guardar nossa imagem
@@ -6,14 +7,27 @@ import path from "path";
 
 //Criara nossa pasta para armazenar nossos arquivos caso não exista
 import fs from "fs";
-import mime from "mime";
-import { Request } from "express";
 
-export class UploadSpedtxt {
+import { Request } from "express";
+import logger from "@src/logger";
+
+const resolvePath = path.resolve("src");
+const dirTemp = path.join(resolvePath, "temp");
+
+class UploadSpedtxt {
   //Pasta para onde será feito o Upload
-  private URL: string = path.basename("upload");
+  private URL: string = dirTemp;
 
   constructor() {}
+
+  private deleteFile(fileName: String): void {
+    setTimeout(() => {
+      fs.unlink(`${dirTemp}/${fileName}`, (err) => {
+        if (err) logger.error("deletando arquivo: " + err);
+        logger.info(`Arquivo deletado: ${fileName}`);
+      });
+    }, 10000);
+  }
 
   //Methodo onde armazenaremos nossos arquivos
   private storage(): multer.StorageEngine {
@@ -37,12 +51,16 @@ export class UploadSpedtxt {
       filename: (req, file, cb) => {
         //Aqui vamos usar o mime-type para chegar o tipo do arquivo
         //E predefinir como ele veio até nosso sistema
-        const type = mime.getExtension(file.mimetype);
+        const type = mime.extension(file.mimetype);
 
         //Renomeia o nome do arquivo
         //Aqui temos o nome do arquivo gerado pelo Date
         //E colocamos a extensão dele de acordo com o mime-type
-        cb(null, `${new Date().getTime()}.${type}`);
+
+        const fileNameTemp: String = `${new Date().getTime()}.${type}`
+        logger.info(`Salvando arquivo: ${fileNameTemp}`);
+        this.deleteFile(`${fileNameTemp}`);
+        cb(null, `${fileNameTemp}`);
       },
     });
   }
@@ -60,7 +78,7 @@ export class UploadSpedtxt {
       cb: multer.FileFilterCallback
     ) => {
       //Utilizaremos a Lib mime-types para identificar o tipo do arquivo
-      const type = mime.getExtension(file.mimetype);
+      const type = mime.extension(file.mimetype);
 
       const conditions = ["txt"];
 
@@ -82,12 +100,13 @@ export class UploadSpedtxt {
       1 - A compor as configs do Multer como Middleware em nossas rotas
       2 - Não será um middleware global e sim para usos unicos e comportamentais
     */
-      return {
-        //Storage serve para compor a config do multer destination e filename
-        storage: this.storage(),
-        //FileFilter serve para validar o filtro de arquivos
-        fileFilter: this.fileFilter(),
-      };
+    return {
+      //Storage serve para compor a config do multer destination e filename
+      storage: this.storage(),
+      //FileFilter serve para validar o filtro de arquivos
+      fileFilter: this.fileFilter(),
+    };
   }
 }
 
+export const imputFileMiddleware = new UploadSpedtxt();
