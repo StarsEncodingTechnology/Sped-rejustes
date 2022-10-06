@@ -25,14 +25,14 @@ describe("RemoveDuplicados0150", () => {
     );
   });
 
-  it.only("deve retornar um erro", async () => {
+  it("deve retornar um erro", async () => {
     const nameFile = "ArquivoInvalido.json";
     const removeDuplicados0150 = new RemoveDuplicados0150();
 
     await expect(
       removeDuplicados0150.normalizaTxt(dirTxt, nameFile)
     ).rejects.toThrow(
-      "asd"
+      "Erro quando o arquivo não é valido: Arquivo de formato invalido"
     );
   });
 });

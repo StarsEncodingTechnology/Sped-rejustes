@@ -1,4 +1,4 @@
-import { ErrorMiddleware } from "@overnightjs/core";
+import logger from "@src/logger";
 
 export class InternalError extends Error { 
     constructor(

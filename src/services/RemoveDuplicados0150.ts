@@ -39,12 +39,10 @@ export class RemoveDuplicados0150 {
     // iniciando normalização de dados
     const linhasTxt = await ReadTxt.readFile(`${dir}/${file}`);
 
-    // if(!this.validaFile(linhasTxt))
-    
-    console.log(linhasTxt)
+    this.validaFile(linhasTxt);
+  
 
-    this.validaFile(linhasTxt)
-
+    logger.info(`A empresa que está sendo alterado: ${linhasTxt[0][6]}, --- CNPJ: ${linhasTxt[0][8]} --- data: ${linhasTxt[0][5]}`)
     return this.removeDuplicados(linhasTxt);
   }
 

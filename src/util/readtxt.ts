@@ -15,9 +15,9 @@ export default class ReadTxt {
   }
 
   public static async readFile(dirFile: string): Promise<string[][]> {
-    if (dirFile.slice(dirFile.length - 4) == ".txt")
-      throw new ArquivoNaoValidoError("asfe");
-    else {
+    if (dirFile.slice(dirFile.length - 4) != ".txt") {
+      throw new ArquivoNaoValidoError("Arquivo de formato invalido");
+    } else {
       const file = await fs.promises.readFile(join(dirFile), "utf-8");
       // faz a leitura do txt
 
