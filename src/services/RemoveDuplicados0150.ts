@@ -1,47 +1,37 @@
 import logger from "@src/logger";
 import { ContadorLinhas, InterfaceTotalLinha } from "@src/util/contadorLinha";
+import { InternalError } from "@src/util/errors/internal-error";
 import ReadTxt from "@src/util/readtxt";
 
 interface InterfaceChaveValor {
   [key: string]: string;
 }
 
-interface validaoLinhas {
-  "0000": Boolean;
-  "0001": Boolean;
-  "0150": Boolean;
-  "9999": Boolean;
-  "0990": Boolean;
-  // LB990: Boolean,
-  // B não é obrigatorio
-  C990: Boolean;
-  D990: Boolean;
-  E990: Boolean;
-  G990: Boolean;
-  H990: Boolean;
-  K990: Boolean;
-  "1990": Boolean;
-  "9990": Boolean;
+export class ArquivoNaoValidoError extends InternalError {
+  constructor(message: string) {
+    const internalError = "Erro quando o arquivo não é valido: " + message;
+    super(internalError);
+  }
 }
 
 export class RemoveDuplicados0150 {
-  validacaoLinhas: validaoLinhas = {
-    "0000": false,
-    "0001": false,
-    "0150": false,
-    "9999": false,
-    "0990": false,
-    // LB990: false,
+  readonly validacaoLinhas: string[] = [
+    "0000",
+    "0001",
+    "0150",
+    "9999",
+    "0990",
+    // LB990
     // B não é obrigatorio
-    C990: false,
-    D990: false,
-    E990: false,
-    G990: false,
-    H990: false,
-    K990: false,
-    "1990": false,
-    "9990": false,
-  };
+    "C990",
+    "D990",
+    "E990",
+    "G990",
+    "H990",
+    "K990",
+    "1990",
+    "9990",
+  ];
 
   constructor() {}
 
@@ -49,7 +39,9 @@ export class RemoveDuplicados0150 {
     // iniciando normalização de dados
     const linhasTxt = await ReadTxt.readFile(`${dir}/${file}`);
 
-    // if(!this.validaFile(linhasTxt)) 
+    // if(!this.validaFile(linhasTxt))
+    
+    console.log(linhasTxt)
 
     this.validaFile(linhasTxt)
 
@@ -57,17 +49,26 @@ export class RemoveDuplicados0150 {
   }
 
   private validaFile(linhasTxt: string[][]): boolean {
+    let capturaLinhas: string[] = [];
     for (let prop in linhasTxt) {
-      if(linhasTxt[prop][1] == "9999") break
+      const element = linhasTxt[prop][1];
 
-      const element: string = linhasTxt[prop][1]
+      if (
+        this.validacaoLinhas.includes(element) &&
+        !capturaLinhas.includes(element)
+      )
+        capturaLinhas.push(element);
 
-      if(!!this.validacaoLinhas?.[this.ajustaNotas]){
-        console.log('achou' + element)
-      }
+      if (linhasTxt[prop][1] == "9999") break;
     }
 
-    return false
+    if (this.validacaoLinhas.length == capturaLinhas.length) return true;
+    throw new ArquivoNaoValidoError(
+      "Linhas invalidas - " +
+        this.validacaoLinhas.filter(
+          (element) => !capturaLinhas.includes(element)
+        )
+    );
   }
 
   private removeDuplicados(linhasTxt: string[][]): string[][] {
