@@ -64,7 +64,7 @@ export class RemoveDuplicados0150 {
 
     if (this.validacaoLinhas.length == capturaLinhas.length) return true;
     throw new ArquivoNaoValidoError(
-      "Linhas invalidas - " +
+      "Linhas faltantes - " +
         this.validacaoLinhas.filter(
           (element) => !capturaLinhas.includes(element)
         )

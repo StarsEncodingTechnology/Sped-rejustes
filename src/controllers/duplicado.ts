@@ -1,6 +1,8 @@
 import { Controller, Get, Middleware, Post } from "@overnightjs/core";
 import logger from "@src/logger";
 import { imputFileMiddleware } from "@src/middleware/upload/spedtxt";
+import { CriaArquivoParaDownlaod } from "@src/services/criaArquivoParaDownload";
+import { RemoveDuplicados0150 } from "@src/services/RemoveDuplicados0150";
 import { Request, Response } from "express";
 import multer from "multer";
 
@@ -13,15 +15,30 @@ export class DuplicadoController {
 
   @Post("")
   @Middleware(multer(imputFileMiddleware.getConfig).single("imputTxt"))
-  public uploadSpedtxt(req: Request, res: Response): void {
+  public async uploadSpedtxt(req: Request, res: Response): Promise<void> {
     //Perguntamos se depois de validado existe o file dentro do request
     if (req.file) {
-      //Se ele existir, retornamos um sucess com o payload do arquivo gerado
-      //Aqui sua criatividade é o limite
-      res.render("sucess");
+      try {
+        //Se ele existir, retornamos um sucess com o payload do arquivo gerado
+        //Aqui sua criatividade é o limite
+        const removeDuplicados0150 = new RemoveDuplicados0150();
+        const arrayFileFix = await removeDuplicados0150.normalizaTxt(
+          req.file.destination,
+          req.file.filename
+        );
+        const criaArquivoParaDownload = new CriaArquivoParaDownlaod(
+          arrayFileFix
+        );
+        const nomeArquivo = await criaArquivoParaDownload.retornaDirArquivo();
+
+        res.render("sucess", { linkArquivo: `/download/${nomeArquivo}` });
+      } catch (e) {
+        logger.error(e);
+        res.render("failure", { motivo: e });
+      }
     } else {
-      logger.info("não localizado");
-      res.send("failure");
+      logger.error("Arquivo invalido");
+      res.render("failure", { motivo: "Possivelmente arquivo invalido" });
     }
   }
 }

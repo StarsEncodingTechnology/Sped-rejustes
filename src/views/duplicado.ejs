@@ -9,9 +9,9 @@
     <main>
         <section style="height: 100vh; display: flex; justify-content: center; align-items: center;">
             <div style="flex-basis: 50%;">
-                <form style="display: flex; justify-content: space-around;align-items: center;" action="failure.html">
-                    <input id="selecionarArquivo" type="file" hidden>
-                    <label for="selecionarArquivo" style="cursor: pointer;display: flex;align-items: center; background-color: #00e48b;padding: 12px 30px;font-weight: 500;color: #fff;font-size: 20px;border-radius: 10px;">Importar<img src="./assests/img/import.png" alt="" style="width: 30px;margin-left: 10px;"></label>
+                <form style="display: flex; justify-content: space-around;align-items: center;" action="/duplicado" method="POST"  enctype="multipart/form-data">
+                    <input id="imputTxt" name="imputTxt" type="file" hidden>
+                    <label for="imputTxt" style="cursor: pointer;display: flex;align-items: center; background-color: #00e48b;padding: 12px 30px;font-weight: 500;color: #fff;font-size: 20px;border-radius: 10px;">Importar<img src="/imagem/import.png" alt="" style="width: 30px;margin-left: 10px;"></label>
                     <input type="submit" style="cursor: pointer;display: flex;align-items: center; background-color: #00e48b;padding: 16px 40px;font-weight: 500;color: #fff;font-size: 20px;border: 0;border-radius: 10px;"></input>
                 </form>
             </div>

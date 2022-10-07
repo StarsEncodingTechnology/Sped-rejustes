@@ -7,6 +7,7 @@ import express, { Application } from "express";
 import { SpedController } from "./controllers/home";
 import path from "path";
 import { DuplicadoController } from "./controllers/duplicado";
+import { DownloadFilesController } from "./controllers/download";
 
 export class SetupServer extends Server {
   constructor(private port = 3000) {
@@ -19,21 +20,30 @@ export class SetupServer extends Server {
   }
 
   private setupExpress(): void {
-    // não façam isso crianças 
+    this.app.use("/imagem", express.static(__dirname + "/views/assests/img/"));
+    // rota para carregamento de imagem
+
+    // não façam isso crianças
     this.app.set("views", path.join(__dirname, "views"));
-    this.app.engine('ejs', require('ejs').renderFile);
+    this.app.engine("ejs", require("ejs").renderFile);
     this.app.set("view engine", "ejs");
-    // this.app.use(
-    //   express.urlencoded({
-    //     extended: false,
-    //   })
-    // );
+
+    this.app.use(
+      express.urlencoded({
+        extended: false,
+      })
+    );
   }
 
   private setControllers(): void {
     const homeController = new SpedController();
     const duplicadoController = new DuplicadoController();
-    this.addControllers([homeController, duplicadoController]);
+    const downloadFilesController = new DownloadFilesController();
+    this.addControllers([
+      homeController,
+      duplicadoController,
+      downloadFilesController,
+    ]);
   }
 
   public close(): void {}

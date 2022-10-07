@@ -21,7 +21,7 @@ describe("RemoveDuplicados0150", () => {
     await expect(
       removeDuplicados0150.normalizaTxt(dirTxt, nameFile)
     ).rejects.toThrow(
-      "Erro quando o arquivo não é valido: Linhas invalidas - 9999,D990,E990,G990,H990,K990,1990,9990"
+      "Erro quando o arquivo não é valido: Linhas faltantes - 9999,D990,E990,G990,H990,K990,1990,9990"
     );
   });
 

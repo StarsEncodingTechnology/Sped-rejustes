@@ -10,6 +10,7 @@ import fs from "fs";
 
 import { Request } from "express";
 import logger from "@src/logger";
+import { DeleteFile } from "@src/util/deleteFile";
 
 const resolvePath = path.resolve("src");
 const dirTemp = path.join(resolvePath, "temp");
@@ -19,16 +20,6 @@ class UploadSpedtxt {
   private URL: string = dirTemp;
 
   constructor() {}
-
-  private deleteFile(fileName: String): void {
-    setTimeout(() => {
-      fs.unlink(`${dirTemp}/${fileName}`, (err) => {
-        if (err) logger.error("deletando arquivo: " + err);
-        logger.info(`Arquivo deletado: ${fileName}`);
-      });
-    }, 10000);
-  }
-
   //Methodo onde armazenaremos nossos arquivos
   private storage(): multer.StorageEngine {
     /*
@@ -59,7 +50,7 @@ class UploadSpedtxt {
 
         const fileNameTemp: String = `${new Date().getTime()}.${type}`
         logger.info(`Salvando arquivo: ${fileNameTemp}`);
-        this.deleteFile(`${fileNameTemp}`);
+        DeleteFile(`${fileNameTemp}`, 5000);
         cb(null, `${fileNameTemp}`);
       },
     });
