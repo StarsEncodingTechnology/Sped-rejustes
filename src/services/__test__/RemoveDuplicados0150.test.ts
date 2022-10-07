@@ -14,7 +14,7 @@ describe("RemoveDuplicados0150", () => {
     expect(response).toEqual(respostaCorreta);
   });
 
-  it("deve retornar um erro", async () => {
+  it("deve retornar um erro caso arquivo incompleto", async () => {
     const nameFile = "spedFaltandoPedaco.txt";
     const removeDuplicados0150 = new RemoveDuplicados0150();
 
@@ -25,7 +25,7 @@ describe("RemoveDuplicados0150", () => {
     );
   });
 
-  it("deve retornar um erro", async () => {
+  it("deve retornar um erro caso arquivo não seja da extensão correta", async () => {
     const nameFile = "ArquivoInvalido.json";
     const removeDuplicados0150 = new RemoveDuplicados0150();
 

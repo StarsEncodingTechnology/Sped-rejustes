@@ -18,7 +18,7 @@ export class DuplicadoController {
     if (req.file) {
       //Se ele existir, retornamos um sucess com o payload do arquivo gerado
       //Aqui sua criatividade é o limite
-      res.send("sucess");
+      res.render("sucess");
     } else {
       logger.info("não localizado");
       res.send("failure");

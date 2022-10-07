@@ -40,24 +40,26 @@ export class RemoveDuplicados0150 {
     const linhasTxt = await ReadTxt.readFile(`${dir}/${file}`);
 
     this.validaFile(linhasTxt);
-  
 
-    logger.info(`A empresa que está sendo alterado: ${linhasTxt[0][6]}, --- CNPJ: ${linhasTxt[0][8]} --- data: ${linhasTxt[0][5]}`)
+    logger.info(
+      `A empresa que está sendo alterado: ${linhasTxt[0][6]}, ` +
+        `--- CNPJ: ${linhasTxt[0][8]} --- data: ${linhasTxt[0][5]}`
+    );
     return this.removeDuplicados(linhasTxt);
   }
 
-  private validaFile(linhasTxt: string[][]): boolean {
+  public validaFile(linhasTxt: string[][]): boolean {
     let capturaLinhas: string[] = [];
     for (let prop in linhasTxt) {
       const element = linhasTxt[prop][1];
-
       if (
         this.validacaoLinhas.includes(element) &&
         !capturaLinhas.includes(element)
       )
+      // caso esteja incluido e já n tenha cido capturado
         capturaLinhas.push(element);
-
       if (linhasTxt[prop][1] == "9999") break;
+      // na ultima linha para
     }
 
     if (this.validacaoLinhas.length == capturaLinhas.length) return true;
@@ -66,6 +68,7 @@ export class RemoveDuplicados0150 {
         this.validacaoLinhas.filter(
           (element) => !capturaLinhas.includes(element)
         )
+        // lança erro contendo as linhas que faltam
     );
   }
 

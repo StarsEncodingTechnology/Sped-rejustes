@@ -21,13 +21,13 @@ export class SetupServer extends Server {
   private setupExpress(): void {
     // não façam isso crianças 
     this.app.set("views", path.join(__dirname, "views"));
-    this.app.engine('html', require('ejs').renderFile);
-    this.app.set("view engine", "html");
-    this.app.use(
-      express.urlencoded({
-        extended: false,
-      })
-    );
+    this.app.engine('ejs', require('ejs').renderFile);
+    this.app.set("view engine", "ejs");
+    // this.app.use(
+    //   express.urlencoded({
+    //     extended: false,
+    //   })
+    // );
   }
 
   private setControllers(): void {
