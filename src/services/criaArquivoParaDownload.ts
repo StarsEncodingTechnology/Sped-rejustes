@@ -17,10 +17,9 @@ export class CriaArquivoParaDownlaod {
   }
 
   private criaNomeArquivo(): string {
-    const nomeArquivo = `${this.linha0000[5].replace(
-      /[^0-9]/g,
-      ""
-    ).substring(2)}-${this.linha0000[7].replace(
+    const nomeArquivo = `${this.linha0000[5]
+      .replace(/[^0-9]/g, "")
+      .substring(2)}-${this.linha0000[7].replace(
       /[^0-9]/g,
       ""
     )}-${new Date().getTime()}.txt`;
