@@ -43,6 +43,4 @@ describe("teste funcional duplicado", () => {
       expect.stringContaining("Possivelmente arquivo invalido")
     );
   });
-
-
 });
