@@ -24,7 +24,8 @@ process.on("uncaughtException", (error) => {
   // iniciando
   logger.info("Iniciando APP");
   try {
-    const server = new SetupServer();
+    const port: string = process.env.PORT || "3000";
+    const server = new SetupServer(port);
     server.init();
     server.start();
 

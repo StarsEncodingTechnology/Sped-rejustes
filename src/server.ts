@@ -10,7 +10,7 @@ import { DuplicadoController } from "./controllers/duplicado";
 import { DownloadFilesController } from "./controllers/download";
 
 export class SetupServer extends Server {
-  constructor(private port = 3000) {
+  constructor(private port: string = "3000") {
     super();
   }
 
