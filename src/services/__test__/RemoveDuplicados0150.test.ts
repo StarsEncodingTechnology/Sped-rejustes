@@ -1,4 +1,4 @@
-import path, { join } from "path";
+import path from "path";
 import { RemoveDuplicados0150 } from "../RemoveDuplicados0150";
 import dadosSemduplicados from "@test/fixtures/dadosSemDuplicados.json";
 
