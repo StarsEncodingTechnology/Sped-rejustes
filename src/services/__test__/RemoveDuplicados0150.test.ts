@@ -4,7 +4,7 @@ import dadosSemduplicados from "@test/fixtures/dadosSemDuplicados.json";
 
 describe("RemoveDuplicados0150", () => {
   const resolvePath = path.resolve("test");
-  it.only("deve retornar o txt normalizado CORRETO", async () => {
+  it("deve retornar o txt normalizado CORRETO", async () => {
     console.log(resolvePath);
     const nameFile = "post_spedComDuplicados.txt";
     const removeDuplicados0150 = new RemoveDuplicados0150();

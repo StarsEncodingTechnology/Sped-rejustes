@@ -5,7 +5,7 @@ import { join } from "path";
 export default class ReadTxt {
   private static convertFileEmArray(file: string): string[][] {
     // faz conversão do string em array
-    const arrayLinha = file.split("\r\n");
+    const arrayLinha = file.split(/\r\n|\n|\r/gm);
 
     const arrayFinal = arrayLinha.map((element) => {
       return element.split("|");
