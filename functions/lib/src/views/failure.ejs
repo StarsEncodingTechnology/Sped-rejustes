@@ -1,0 +1,92 @@
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sped Reajustes - Enviado com sucesso</title>
+  </head>
+  <body
+    style="
+      border: 0;
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+      animation: entrada 1s;
+    "
+  >
+    <main>
+      <section
+        style="
+          height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        "
+      >
+        <div style="flex-basis: 50%">
+          <div
+            style="
+              display: flex;
+              justify-content: space-around;
+              align-items: center;
+              height: 300px;
+              flex-wrap: wrap;
+            "
+          >
+            <p
+              style="
+                font-size: 24px;
+                font-weight: 600;
+                color: red;
+                flex-basis: 100%;
+                text-align: center;
+              "
+            >
+              Ocorreu um erro ao enviar o seu arquivo, tente novamente.
+            </p>
+            <p
+              style="
+                font-size: 24px;
+                font-weight: 600;
+                color: red;
+                flex-basis: 100%;
+                text-align: center;
+              "
+              id="motivoErro"
+            >
+              a
+            </p>
+            <a
+              href="/duplicado"
+              style="
+                background-color: #00e48b;
+                text-decoration: none;
+                color: #fff;
+                font-size: 20px;
+                padding: 15px 40px;
+                border-radius: 10px;
+              "
+              >Tentar novamente</a
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+  <style>
+    @keyframes entrada {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+  </style>
+  <script>
+    const erro = "<%=motivo%>";
+    console.log(erro);
+    const element = document.getElementById("motivoErro");
+    element.innerHTML = erro;
+  </script>
+</html>

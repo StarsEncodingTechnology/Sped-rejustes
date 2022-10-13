@@ -22,16 +22,27 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const functions = __importStar(require("firebase-functions"));
-const logger_1 = __importDefault(require("./logger"));
-const server_1 = require("./server");
-logger_1.default.info("Iniciando APP");
-const port = process.env.PORT || "3000";
-const server = new server_1.SetupServer(port);
-server.init();
-exports.app = functions.https.onRequest(server.getApp());
-//# sourceMappingURL=index.js.map
+const RemoveDuplicados0150_1 = require("@src/services/RemoveDuplicados0150");
+const fs = __importStar(require("fs"));
+const path_1 = require("path");
+class ReadTxt {
+    static convertFileEmArray(file) {
+        const arrayLinha = file.split(/\r\n|\n|\r/gm);
+        const arrayFinal = arrayLinha.map((element) => {
+            return element.split("|");
+        });
+        return arrayFinal;
+    }
+    static async readFile(dirFile) {
+        if (dirFile.slice(dirFile.length - 4) != ".txt") {
+            throw new RemoveDuplicados0150_1.ArquivoNaoValidoError("Arquivo de formato invalido");
+        }
+        else {
+            const file = await fs.promises.readFile((0, path_1.join)(dirFile), "utf-8");
+            return this.convertFileEmArray(file);
+        }
+    }
+}
+exports.default = ReadTxt;
+//# sourceMappingURL=readtxt.js.map

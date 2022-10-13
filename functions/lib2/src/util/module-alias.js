@@ -26,12 +26,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const functions = __importStar(require("firebase-functions"));
-const logger_1 = __importDefault(require("./logger"));
-const server_1 = require("./server");
-logger_1.default.info("Iniciando APP");
-const port = process.env.PORT || "3000";
-const server = new server_1.SetupServer(port);
-server.init();
-exports.app = functions.https.onRequest(server.getApp());
-//# sourceMappingURL=index.js.map
+const path = __importStar(require("path"));
+const module_alias_1 = __importDefault(require("module-alias"));
+const files = path.resolve(__dirname, "../..");
+module_alias_1.default.addAliases({
+    "@src": path.join(files, "src"),
+    "@test": path.join(files, "test"),
+});
+//# sourceMappingURL=module-alias.js.map

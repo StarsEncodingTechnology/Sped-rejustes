@@ -26,12 +26,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const functions = __importStar(require("firebase-functions"));
-const logger_1 = __importDefault(require("./logger"));
-const server_1 = require("./server");
-logger_1.default.info("Iniciando APP");
-const port = process.env.PORT || "3000";
-const server = new server_1.SetupServer(port);
-server.init();
-exports.app = functions.https.onRequest(server.getApp());
-//# sourceMappingURL=index.js.map
+exports.DeleteFile = void 0;
+const logger_1 = __importDefault(require("@src/logger"));
+const fs = __importStar(require("fs"));
+const path_1 = __importDefault(require("path"));
+const resolvePath = path_1.default.resolve(__dirname + "../../");
+const dirTemp = path_1.default.join(resolvePath, "temp");
+function DeleteFile(fileName, timeDelete = 30000) {
+    setTimeout(() => {
+        fs.unlink(`${dirTemp}/${fileName}`, (err) => {
+            if (err)
+                logger_1.default.error("deletando arquivo: " + err);
+            logger_1.default.info(`Arquivo deletado: ${fileName}`);
+        });
+    }, timeDelete);
+}
+exports.DeleteFile = DeleteFile;
+//# sourceMappingURL=deleteFile.js.map

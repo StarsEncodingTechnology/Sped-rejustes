@@ -6,6 +6,6 @@ import { Request, Response } from "express";
 export class SpedController {
   @Get("")
   public recebeSped(req: Request, res: Response): void {
-    res.render("index");
+    res.render("./index");
   }
 }
