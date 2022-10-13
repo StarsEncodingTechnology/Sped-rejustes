@@ -1,0 +1,4 @@
+yarn run v1.22.19
+$ yarn test:unit && yarn test:functional download.test.ts
+$ jest --runInBand 
+{"level":30,"time":1665508294608,"pid":22668,"hostname":"PedroEliasCSNotebook","msg":"A empresa que está sendo alterado: *, --- CNPJ: * --- data: 30042022"}
