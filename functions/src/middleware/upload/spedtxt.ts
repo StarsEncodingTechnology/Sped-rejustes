@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import Busboy from "busboy";
 import os from "os";
-import fs from "fs";
+import Busboy from "busboy";
+import path, { resolve } from "path";
 import internal from "stream";
-import busboy from "busboy";
-import path from "path";
+import * as fs from "fs";
+import logger from "@src/logger";
+import { rejects } from "assert";
 
 interface interfaceFields {
   [key: string]: string;
@@ -16,20 +17,20 @@ interface interfaceArrayFiles {
   encoding: string;
   mimeType: string;
   buffer: Buffer;
-  size: number
+  size: number;
 }
 
-interface interfaceRequest extends Request{
-    files?: interfaceArrayFiles[];
-    rawBody?: any
-    // não sei muito bem oque ele é mas ta ae né
+interface interfaceRequest extends Request {
+  files?: interfaceArrayFiles[];
+  rawBody?: Buffer;
+  // não sei muito bem oque ele é mas ta ae né
 }
 
-exports.txtUpload = function (
+export async function txtUpload(
   req: interfaceRequest,
-  res: Response,
+  _: Response,
   next: NextFunction
-): void {
+): Promise<Busboy.Busboy | void> {
   const busboy: Busboy.Busboy = Busboy({
     headers: req.headers,
     limits: {
@@ -39,77 +40,75 @@ exports.txtUpload = function (
   });
 
   const fields: interfaceFields = {};
-  const files: interfaceArrayFiles[] = [];
-  const fileWrites: Promise<any>[] = [];
 
   const tempdir = path.resolve(os.tmpdir());
 
-
-  busboy.on("field", (key: string, value: string) => (fields[key] = value));
+  busboy.on("field", (key, value) => {
+    fields[key] = value;
+  });
 
   busboy.on(
     "file",
-    (
-      fieldname: string,
-      file: internal.Readable,
-      fileDescript: busboy.FileInfo
-    ) => {
-      const {filename, encoding, mimeType } = fileDescript;
-      if (filename.indexOf(".txt") == -1 || mimeType != "text/plain")
-      {
-        res.render("failure", {motivo: "Arquivo Invalido"});
-        return
-      }else if(files.length > 1){
-        res.render("failure", {motivo: "Somente 1 arquivo por vez"});
-      }else{
-        const fileNameTemp: string = `ajustesped${new Date().getTime()}.txt'`;
-        
-        const filePath: string = path.join(`${tempdir}`, fileNameTemp)
+    async (name: string, stream: internal.Readable, info: Busboy.FileInfo) => {
+      // console.log({ name, stream, info });
+      const { filename, encoding, mimeType } = info;
 
-        const writeStream: fs.WriteStream = fs.createWriteStream(filePath);
-        file.pipe(writeStream);
+      console.log({ mimeType });
 
-        fileWrites.push(
-          new Promise((resolve, reject) => {
-            file.on("end", () => writeStream.end());
-            writeStream.on("finish", () => {
-              fs.readFile(filePath, (err, buffer) => {
-                const size: number = Buffer.byteLength(buffer);
-                if(err) return reject(err);
+      const nameFile: string = `spedajustes${Date.now().toString()}`;
+      const filePath: string = path.join(tempdir, `${nameFile}.txt`);
+      
+      const writeStream: fs.WriteStream = fs.createWriteStream(filePath);
+      stream.pipe(writeStream);
 
-                files.push({
-                  fieldname,
-                  originalName: filename,
-                  encoding,
-                  mimeType,
-                  buffer,
-                  size
-                })
+      new Promise<void>((resolve, rejects) => {
+        stream.on("end", () => writeStream.end());
+        writeStream.on("finish", () => {
+          fs.readFile(filePath, (err, buffer: Buffer) => {
+            const size: number = Buffer.byteLength(buffer);
+            if (err) return rejects(err);
 
-                try{
-                  fs.unlinkSync(filePath);
-                }catch (error){
-                  return reject(error);
-                }
+            req.files = [
+              {
+                fieldname: name,
+                originalName: filename,
+                encoding: encoding,
+                mimeType: mimeType,
+                buffer: buffer,
+                size: size,
+              },
+            ];
 
-                resolve("CONCLUIDO");
-              });
-            });
-            writeStream.on('error', reject);
-          })
-        )
-      }
+            try {
+              fs.unlinkSync(filePath);
+            } catch (err) {
+              return rejects(err);
+            }
+            return resolve();
+          });
+        });
+      })
+        .then(() => {
+          req.body = fields;
+          return next();
+        })
+        .catch((e) => {
+          console.log("DENTRO:" + e);
+        });
     }
   );
 
-  busboy.on('finish', ()=>{
-    Promise.all(fileWrites)
-      .then(() => {
-        req.body = fields;
-        req.files = files;
-      })
+  busboy.on("error", (error) => {
+    console.log("TESAIJ: " + error);
+    return next();
   });
 
-  busboy.end(req.rawBody);
+  
+  return busboy.end(req.rawBody);
 
-};
+  // busboy.on("finish", () => {});
+
+  // req.pipe(busboy);  
+
+  // return req.pipe(busboy);
+}

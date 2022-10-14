@@ -1,7 +1,7 @@
 import path from "path";
 
 describe("teste funcional duplicado", () => {
-  it("deve retornar a pagina de sucesso", async () => {
+  it.only("deve retornar a pagina de sucesso", async () => {
     const txt = path.resolve(
       __dirname,
       "../fixtures/post_spedComDuplicados.txt"
