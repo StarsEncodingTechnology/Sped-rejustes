@@ -1,112 +1,115 @@
-//Importaremos para realizar o Upload
-import mime from "mime-types";
-import multer from "multer";
-
-//Ajudará no caminho para guardar nossa imagem
+import { NextFunction, Request, Response } from "express";
+import Busboy from "busboy";
+import os from "os";
+import fs from "fs";
+import internal from "stream";
+import busboy from "busboy";
 import path from "path";
 
-//Criara nossa pasta para armazenar nossos arquivos caso não exista
-import fs from "fs";
-
-import { Request } from "express";
-import logger from "@src/logger";
-import { DeleteFile } from "@src/util/deleteFile";
-
-const resolvePath = path.resolve(__dirname + "../../../");
-const dirTemp = path.join(resolvePath, "temp");
-
-class UploadSpedtxt {
-  //Pasta para onde será feito o Upload
-  private URL: string = dirTemp;
-
-  constructor() {}
-  //Methodo onde armazenaremos nossos arquivos
-  private storage(): multer.StorageEngine {
-    /*
-      Essa configuração irá nos ajudar
-      1 - O destino do arquivo 
-      2 - E o nome do arquivo
-    */
-    console.log('dentro do multer 0')
-    return multer.diskStorage({
-      //Criar o destino do arquivo
-      destination: (req, file, cb) => {
-        console.log("DENTRO DO MULTER 1");
-        //Verifica se não existe o diretório
-        if (!fs.existsSync(this.URL)) {
-          //Efetua a criação do diretório caso ele não exista
-          fs.mkdirSync(this.URL);
-        }
-        //Define o caminho da pasta
-        cb(null, this.URL);
-      },
-      //Renomeia o arquivo
-      filename: (req, file, cb) => {
-        console.log("DENTRO DO MULTER 2");
-        //Aqui vamos usar o mime-type para chegar o tipo do arquivo
-        //E predefinir como ele veio até nosso sistema
-        const type = mime.extension(file.mimetype);
-
-        //Renomeia o nome do arquivo
-        //Aqui temos o nome do arquivo gerado pelo Date
-        //E colocamos a extensão dele de acordo com o mime-type
-
-        const fileNameTemp: String = `${new Date().getTime()}.${type}`;
-        logger.info(`Salvando arquivo: ${fileNameTemp}`);
-        DeleteFile(`${fileNameTemp}`, 5000);
-        cb(null, `${fileNameTemp}`);
-      },
-    });
-  }
-
-  //Methodo onde iremos efetuar o filtro de arquivos
-  //Se é valido ou não
-  private fileFilter() {
-    console.log("DENTRO DO MULTER 3: " + dirTemp);
-    /*
-      Essa configuração vai nos ajudar com 
-      1 - A validação do arquivo
-    */
-    return (
-      _: Request,
-      file: Express.Multer.File,
-      cb: multer.FileFilterCallback
-    ) => {
-      //Utilizaremos a Lib mime-types para identificar o tipo do arquivo
-      console.log("dentro do multer 3.1");
-      const type = mime.extension(file.mimetype);
-      console.log("dentro do multer 3.2");
-      const conditions = ["txt"];
-
-      //Perguntamos se existe algum desses valores no type
-      if (conditions.includes(`${type}`)) {
-        //Caso exista, teremos nossa imagem linda maravilhosa
-
-        console.log("dentro do multer 3.3");
-        cb(null, true);
-      }
-
-      console.log("dentro do multer 3.4");
-      //Caso não de certo a validação não efetuaremos o upload
-      cb(null, false);
-    };
-  }
-
-  //Configuração que usaremos em nossas rotas como Middleware
-  get getConfig(): multer.Options {
-    console.log("DENTRO DO MULTER 4: " + resolvePath);
-    /*
-      Essa configuração vai nos ajudar com 
-      1 - A compor as configs do Multer como Middleware em nossas rotas
-      2 - Não será um middleware global e sim para usos unicos e comportamentais
-    */
-    return {
-      //Storage serve para compor a config do multer destination e filename
-      storage: this.storage(),
-      //FileFilter serve para validar o filtro de arquivos
-      fileFilter: this.fileFilter(),
-    };
-  }
+interface interfaceFields {
+  [key: string]: string;
 }
 
-export const imputFileMiddleware = new UploadSpedtxt();
+interface interfaceArrayFiles {
+  fieldname: string;
+  originalName: string;
+  encoding: string;
+  mimeType: string;
+  buffer: Buffer;
+  size: number
+}
+
+interface interfaceRequest extends Request{
+    files?: interfaceArrayFiles[];
+    rawBody?: any
+    // não sei muito bem oque ele é mas ta ae né
+}
+
+exports.txtUpload = function (
+  req: interfaceRequest,
+  res: Response,
+  next: NextFunction
+): void {
+  const busboy: Busboy.Busboy = Busboy({
+    headers: req.headers,
+    limits: {
+      // Cloud functions impose this restriction anyway
+      fileSize: 10 * 1024 * 1024,
+    },
+  });
+
+  const fields: interfaceFields = {};
+  const files: interfaceArrayFiles[] = [];
+  const fileWrites: Promise<any>[] = [];
+
+  const tempdir = path.resolve(os.tmpdir());
+
+
+  busboy.on("field", (key: string, value: string) => (fields[key] = value));
+
+  busboy.on(
+    "file",
+    (
+      fieldname: string,
+      file: internal.Readable,
+      fileDescript: busboy.FileInfo
+    ) => {
+      const {filename, encoding, mimeType } = fileDescript;
+      if (filename.indexOf(".txt") == -1 || mimeType != "text/plain")
+      {
+        res.render("failure", {motivo: "Arquivo Invalido"});
+        return
+      }else if(files.length > 1){
+        res.render("failure", {motivo: "Somente 1 arquivo por vez"});
+      }else{
+        const fileNameTemp: string = `ajustesped${new Date().getTime()}.txt'`;
+        
+        const filePath: string = path.join(`${tempdir}`, fileNameTemp)
+
+        const writeStream: fs.WriteStream = fs.createWriteStream(filePath);
+        file.pipe(writeStream);
+
+        fileWrites.push(
+          new Promise((resolve, reject) => {
+            file.on("end", () => writeStream.end());
+            writeStream.on("finish", () => {
+              fs.readFile(filePath, (err, buffer) => {
+                const size: number = Buffer.byteLength(buffer);
+                if(err) return reject(err);
+
+                files.push({
+                  fieldname,
+                  originalName: filename,
+                  encoding,
+                  mimeType,
+                  buffer,
+                  size
+                })
+
+                try{
+                  fs.unlinkSync(filePath);
+                }catch (error){
+                  return reject(error);
+                }
+
+                resolve("CONCLUIDO");
+              });
+            });
+            writeStream.on('error', reject);
+          })
+        )
+      }
+    }
+  );
+
+  busboy.on('finish', ()=>{
+    Promise.all(fileWrites)
+      .then(() => {
+        req.body = fields;
+        req.files = files;
+      })
+  });
+
+  busboy.end(req.rawBody);
+
+};
