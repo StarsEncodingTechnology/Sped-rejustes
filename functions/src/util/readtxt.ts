@@ -1,7 +1,3 @@
-import { ArquivoNaoValidoError } from "@src/services/RemoveDuplicados0150";
-import * as fs from "fs";
-import { join } from "path";
-
 export default class ReadTxt {
   private static convertFileEmArray(file: string): string[][] {
     // faz conversão do string em array
@@ -14,14 +10,8 @@ export default class ReadTxt {
     return arrayFinal;
   }
 
-  public static async readFile(dirFile: string): Promise<string[][]> {
-    if (dirFile.slice(dirFile.length - 4) != ".txt") {
-      throw new ArquivoNaoValidoError("Arquivo de formato invalido");
-    } else {
-      const file = await fs.promises.readFile(join(dirFile), "utf-8");
-      // faz a leitura do txt
-
+  public static async readFile(fileBuffer: Buffer): Promise<string[][]> {
+      const file = fileBuffer.toString("utf-8");
       return this.convertFileEmArray(file);
-    }
   }
 }

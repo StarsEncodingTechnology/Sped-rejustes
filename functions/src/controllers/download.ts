@@ -2,9 +2,10 @@ import { Controller, Get } from "@overnightjs/core";
 import { Request, Response } from "express";
 import * as fs from "fs";
 import path from "path";
+import os from "os";
 
-const resolvePath = path.resolve(__dirname + "../../");
-const dirTemp = path.join(resolvePath, "temp");
+// const resolvePath = path.resolve(__dirname + "../../");
+const dirTemp = path.join(os.tmpdir());
 
 @Controller("download")
 export class DownloadFilesController {

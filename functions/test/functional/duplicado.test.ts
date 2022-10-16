@@ -1,7 +1,7 @@
 import path from "path";
 
 describe("teste funcional duplicado", () => {
-  it.only("deve retornar a pagina de sucesso", async () => {
+  it.skip("deve retornar a pagina de sucesso", async () => {
     const txt = path.resolve(
       __dirname,
       "../fixtures/post_spedComDuplicados.txt"
@@ -18,7 +18,7 @@ describe("teste funcional duplicado", () => {
     );
   });
 
-  it("deve retornar um erro de falta de linhas", async () => {
+  it.skip("deve retornar um erro de falta de linhas", async () => {
     const txt = path.resolve(__dirname, "../fixtures/spedFaltandoPedaco.txt");
 
     const response = await global.testRequest
@@ -32,7 +32,7 @@ describe("teste funcional duplicado", () => {
     );
   });
 
-  it("deve retornar um erro de arquivo invalido", async () => {
+  it.skip("deve retornar um erro de arquivo invalido", async () => {
     const txt = path.resolve(__dirname, "../fixtures/ArquivoInvalido.json");
 
     const response = await global.testRequest

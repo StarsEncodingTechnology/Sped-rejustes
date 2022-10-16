@@ -53,7 +53,6 @@
     "firebase-admin": "^10.2.0",
     "firebase-functions": "^4.0.0-rc.0",
     "module-alias": "^2.2.2",
-    "pino": "^8.6.1",
-    "yarn": "^1.22.19"
+    "pino": "^8.6.1"
   }
 }

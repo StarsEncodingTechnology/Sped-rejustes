@@ -11,7 +11,7 @@ interface interfaceFields {
   [key: string]: string;
 }
 
-interface interfaceArrayFiles {
+export interface InterfaceInfoFiles {
   fieldname: string;
   originalName: string;
   encoding: string;
@@ -20,13 +20,14 @@ interface interfaceArrayFiles {
   size: number;
 }
 
-interface interfaceRequest extends Request {
-  files?: interfaceArrayFiles[];
+export interface interfaceRequest extends Request {
+  files?: InterfaceInfoFiles[];
   rawBody?: Buffer;
   // não sei muito bem oque ele é mas ta ae né
 }
 
 export async function txtUpload(
+  // middleware de validação e busca de informação do arquivo
   req: interfaceRequest,
   _: Response,
   next: NextFunction
@@ -49,52 +50,67 @@ export async function txtUpload(
 
   busboy.on(
     "file",
-    async (name: string, stream: internal.Readable, info: Busboy.FileInfo) => {
+    async (
+      fieldName: string,
+      stream: internal.Readable,
+      info: Busboy.FileInfo
+    ) => {
       // console.log({ name, stream, info });
       const { filename, encoding, mimeType } = info;
 
-      console.log({ mimeType });
+      if (
+        mimeType != "text/plain" ||
+        filename.indexOf(".txt") == -1 ||
+        fieldName != "imputTxt"
+      ) {
+        console.log("FINALIZADO");
+        stream.resume().on("end", () => {})
+        return next();
+      } else {
 
-      const nameFile: string = `spedajustes${Date.now().toString()}`;
-      const filePath: string = path.join(tempdir, `${nameFile}.txt`);
-      
-      const writeStream: fs.WriteStream = fs.createWriteStream(filePath);
-      stream.pipe(writeStream);
+        // console.log("confilando em tempo real");
 
-      new Promise<void>((resolve, rejects) => {
-        stream.on("end", () => writeStream.end());
-        writeStream.on("finish", () => {
-          fs.readFile(filePath, (err, buffer: Buffer) => {
-            const size: number = Buffer.byteLength(buffer);
-            if (err) return rejects(err);
+        const nameFile: string = `spedajustes${Date.now().toString()}`;
+        const filePath: string = path.join(tempdir, `${nameFile}.txt`);
 
-            req.files = [
-              {
-                fieldname: name,
-                originalName: filename,
-                encoding: encoding,
-                mimeType: mimeType,
-                buffer: buffer,
-                size: size,
-              },
-            ];
+        const writeStream: fs.WriteStream = fs.createWriteStream(filePath);
+        stream.pipe(writeStream);
 
-            try {
-              fs.unlinkSync(filePath);
-            } catch (err) {
-              return rejects(err);
-            }
-            return resolve();
+        new Promise<void>((resolve, rejects) => {
+          stream.on("end", () => writeStream.end());
+          writeStream.on("finish", () => {
+            fs.readFile(filePath, (err, buffer: Buffer) => {
+              const size: number = Buffer.byteLength(buffer);
+              if (err) return rejects(err);
+
+              req.files = [
+                {
+                  fieldname: fieldName,
+                  originalName: filename,
+                  encoding: encoding,
+                  mimeType: mimeType,
+                  buffer: buffer,
+                  size: size,
+                },
+              ];
+
+              try {
+                fs.unlinkSync(filePath);
+              } catch (err) {
+                return rejects(err);
+              }
+              return resolve();
+            });
           });
-        });
-      })
-        .then(() => {
-          req.body = fields;
-          return next();
         })
-        .catch((e) => {
-          console.log("DENTRO:" + e);
-        });
+          .then(() => {
+            req.body = fields;
+            return next();
+          })
+          .catch((e) => {
+            console.log("Erro dentro promise ler arquivo:" + e);
+          });
+      }
     }
   );
 
@@ -103,12 +119,11 @@ export async function txtUpload(
     return next();
   });
 
-  
   return busboy.end(req.rawBody);
 
   // busboy.on("finish", () => {});
 
-  // req.pipe(busboy);  
+  // req.pipe(busboy);
 
   // return req.pipe(busboy);
 }

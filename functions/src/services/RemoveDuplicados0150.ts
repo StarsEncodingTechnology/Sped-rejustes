@@ -1,4 +1,5 @@
 import logger from "@src/logger";
+import { InterfaceInfoFiles } from "@src/middleware/upload/spedtxt";
 import { ContadorLinhas, InterfaceTotalLinha } from "@src/util/contadorLinha";
 import { InternalError } from "@src/util/errors/internal-error";
 import ReadTxt from "@src/util/readtxt";
@@ -35,9 +36,9 @@ export class RemoveDuplicados0150 {
 
   constructor() {}
 
-  public async normalizaTxt(dir: string, file: string): Promise<string[][]> {
+  public async normalizaTxt(file: InterfaceInfoFiles): Promise<string[][]> {
     // iniciando normalização de dados
-    const linhasTxt = await ReadTxt.readFile(`${dir}/${file}`);
+    const linhasTxt = await ReadTxt.readFile(file.buffer);
 
     this.validaFile(linhasTxt);
 
